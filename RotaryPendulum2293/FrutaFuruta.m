@@ -38,20 +38,35 @@ m2l2 = m2*l2;       %producto utilizado varias veces
 
 denom = (J0*J2-(m2l2*L1)^2);
 
+a31=0;
 a32= (g*m2l2^2*L1)/denom;
 a33= (-b1*J2)/denom;
 a34= (-b2*m2l2*L1)/denom;
 
+a41=0;
 a42= (g*m2l2*J0)/denom;
 a43= (-b1*m2l2*L1)/denom;
 a44=(-b2*J0)/denom;
 
 b31=J2/denom;
+b41=m2l2*L1/denom;
+b32=m2l2*L1/denom;
+b42=J0/denom;
+
+A= [ 0 0 1 0;
+    0 0 0 1;
+    a31 a32 a33 a34;
+    a41 a42 a43 a44];
 
 
+B=[0 0;
+   0 0;
+   b31 b32;
+   b41 b42];
+   
+C= [ 1 0 0 0];
 
-
-
+rank(ctrb(A,B)); %cheque controlabilidad del sistema
 
 
 
