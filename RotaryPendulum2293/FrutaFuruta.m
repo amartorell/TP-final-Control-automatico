@@ -63,10 +63,23 @@ B=[0 0;
    0 0;
    b31 b32;
    b41 b42];
+
+B1=[0; 0 ; b31 ; b41];
    
 C= [ 1 0 0 0];
 
 rank(ctrb(A,B)); %cheque controlabilidad del sistema
+rank(obsv(A,C)); %chequeo observavilidad del sistema
 
+sys=ss(A,B1,C,0); 
+Q=diag([3 3 3 3 1]);
+R=2;
+[K,S,E]=lqi(sys,Q,R);
 
+Kp=K(1:4);
+ki=K(5);
 
+Aclp = (A-B1*Kp);
+nsys=ss(Aclp,B1,C,0);
+t=0:0.1:100;
+step(nsys,t)
