@@ -64,7 +64,7 @@ rank(ctrb(A,B)); %cheque controlabilidad del sistema
 rank(obsv(A,C)); %chequeo observavilidad del sistema
 
 sys=ss(A,B1,C,0); 
-Q=diag([50 2 20 3 0.1]);
+Q=diag([1 8 1 8 0.05]);
 Q2=diag([1 10 1 10]);
 R=1;
 [K,S,E]=lqi(sys,Q,R);
