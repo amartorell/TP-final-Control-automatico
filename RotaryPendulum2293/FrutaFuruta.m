@@ -68,9 +68,27 @@ Q=diag([1 5 1 5 0.05]);
 Q2=diag([1 10 1 10]);
 R=1;
 [K,S,E]=lqi(sys,Q,R);
-[K1,S1,E2]=lqr(sys,Q2,R);
+K1=lqr(sys,Q2,R);
 Kp=K(1:4);
 ki=K(5);
 
 Aclp = (A-B1*Kp);
 nsys=ss(Aclp,B1,C,0);
+
+% observador
+
+A11=A(1:2,1:2);
+A12=A(1:2,3:4);
+A21=A(3:4,1:2);
+A22=A(3:4,3:4);
+
+B1=B(1:2);
+B2=B(3:4);
+
+Ke=place(A22',A12',[-200 -200])';
+
+A_est=A22-Ke*A12;
+B_est=A_hat*Ke+A21-Ke*Aaa;
+F_est=B2-Ke*B1';
+D_est=[eye(2,2);Ke];
+C_est=[zeros(2,2);eye(2,2)];
