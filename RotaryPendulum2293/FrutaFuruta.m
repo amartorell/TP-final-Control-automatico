@@ -1,3 +1,5 @@
+% clear all; close all;
+% controller_on_off=1;
 % datos del sistema, joint 1
 m1 =0.01835; %0.0198; 
 g=9.81;
@@ -63,19 +65,33 @@ C= [ 1 0 0 0];
 rank(ctrb(A,B)); %cheque controlabilidad del sistema
 rank(obsv(A,C)); %chequeo observavilidad del sistema
 
+%% Control LQR y LQI
 sys=ss(A,B1,C,0); 
-Q=diag([1 5 1 5 0.05]);
-Q2=diag([1 10 1 10]);
-R=1;
+Q=diag([1 8 1 8 0.05]); %para lqi
+%%Q2=diag([1 10 1 10]); esta es para lqr
+R=2;
 [K,S,E]=lqi(sys,Q,R);
-K1=lqr(sys,Q2,R);
+%%K1=lqr(sys,Q2,R);
 Kp=K(1:4);
 ki=K(5);
+
+%discretizacion
+Ts=10e-3;
+sysD =c2d(sys,Ts,'zoh');
+Ad=sysD.A;
+Bd=sysD.B;
+Cd=sysD.C;
+Qd=diag([1 8 1 8 0.05]);
+Rd=1;
+[Kd,Sd,Ed]= lqi(sysD,Qd,Rd);
+Kpd=Kd(1:4);
+Kid=Kd(5);
+
 
 Aclp = (A-B1*Kp);
 nsys=ss(Aclp,B1,C,0);
 
-% observador
+%% observador
 
 A11=A(1:2,1:2);
 A12=A(1:2,3:4);
@@ -88,7 +104,7 @@ B2=B(3:4);
 Ke=place(A22',A12',[-200 -200])';
 
 A_est=A22-Ke*A12;
-B_est=A_hat*Ke+A21-Ke*Aaa;
+B_est=A_est*Ke+A21-Ke*A11;
 F_est=B2-Ke*B1';
 D_est=[eye(2,2);Ke];
 C_est=[zeros(2,2);eye(2,2)];
