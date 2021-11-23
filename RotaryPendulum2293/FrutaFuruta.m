@@ -1,6 +1,7 @@
 % clear all; close all;
 % controller_on_off=1;
 % datos del sistema, joint 1
+clear all;
 m1 =0.01835; %0.0198; 
 g=9.81;
 T=725.926e-3;
@@ -93,21 +94,37 @@ nsys=ss(Aclp,B1,C,0);
 
 %% observador
 
-A11=A(1:2,1:2);
-A12=A(1:2,3:4);
-A21=A(3:4,1:2);
-A22=A(3:4,3:4);
+Aw= A;
+Bw = B1;
+Aaa=A(1:2,1:2);
+Aab=A(1:2,3:4);
+Aba=A(3:4,1:2);
+Abb=A(3:4,3:4);
 
-B1=B(1:2);
-B2=B(3:4);
+Ba=B1(1:2);
+Bb=B1(3:4);
 
 %para la L del observador reducido
+Ao=Abb;
+Co=Aab;
+
+Lobs = place(Ao',Co',10*[E(1) E(2)]);
+Ke= Lobs';
+E3=eig(Ao-Ke*Co);
+
+% Matrices equivalentes para simulink 
+
+A_h = Abb-Ke*Aab;
+B_h = A_h*Ke + Aba - Ke*Aaa;
+F_h = Bb - Ke*Ba;
+C_h = [0 0; 0 0; 1 0; 0 1];
+D_h = [1 0; 0 1; Ke];
 
 
-Ke=place(A22',A12',[-200 -200])';
-
-A_est=A22-Ke*A12;
-B_est=A_est*Ke+A21-Ke*A11;
-F_est=B2-Ke*B1';
-D_est=[eye(2,2);Ke];
-C_est=[zeros(2,2);eye(2,2)];
+% Ke=place(A22',A12',[-200 -200])';
+% 
+% A_est=A22-Ke*A12;
+% B_est=A_est*Ke+A21-Ke*A11;
+% F_est=B2a-Ke*B1a';
+% D_est=[eye(2,2);Ke];
+% C_est=[zeros(2,2);eye(2,2)];
