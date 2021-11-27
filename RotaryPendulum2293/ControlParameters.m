@@ -2,6 +2,7 @@
 % controller_on_off=1;
 % datos del sistema, joint 1
 clear all;close all;
+controller_on_off=1;
 m1 =0.01835; %0.0198; 
 g=9.81;
 T=725.926e-3;
@@ -135,7 +136,7 @@ nyqlog(P1*Cbeta*ksys)
 
 %%  se realiza la interconexion del sistema realimentando solo beta
 Csec = Cbeta*ksys;
-Cbeta = - Cbeta*ksys;
+Cbeta = - minreal(Cbeta*ksys,0.01);
 Cbeta = ss(Cbeta);
 
 Cbeta.u = 'beta';
@@ -155,7 +156,7 @@ Gb = connect(Gss,Cbeta,Sum,Sys,Sys2,'up','alpha');
 Gb = zpk(Gb);
 
 Calpha1 = ((s^2 + 52.59*s + 1239)*(s+9.449)/(6.925*(s+62)*(s+8.667)*(s+8.644)))/s;
-Calpha2 = -((s+0.075)^2/(1+s/42));
+Calpha2 = -((s+0.2)^2/(1+s/42));
 
 Calpha = minreal(Calpha1*Calpha2,0.01);
 Cprim = Calpha;
@@ -165,5 +166,6 @@ figure()
 margin(PK)
 figure()
 nyqlog(PK)
+eig(1/(1-PK))
 %figure();
 %margin(Gb*Calpha)
