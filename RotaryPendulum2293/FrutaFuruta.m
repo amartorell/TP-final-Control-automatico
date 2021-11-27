@@ -1,7 +1,7 @@
 % clear all; close all;
 % controller_on_off=1;
 % datos del sistema, joint 1
-clear all;
+%clear all;
 m1 =0.01835; %0.0198; 
 g=9.81;
 T=725.926e-3;
@@ -118,6 +118,24 @@ F_h = Bb - Ke*Ba;
 C_h = [0 0; 0 0; 1 0; 0 1];
 D_h = [1 0; 0 1; Ke];
 
+
+% estados observados discretos
+
+Aaa_d = Ad(1:2,1:2);
+Aab_d = Ad(1:2,3:4);
+Aba_d = Ad(3:4,1:2);
+Abb_d = Ad(3:4,3:4);
+
+Ba_d = Bd(1:2);
+Bb_d = Bd(3:4);
+
+Ked= (place(Abb_d',Aab_d',[0.9 0.9]))';
+
+A_h_d = Abb_d-Ked*Aab_d;
+B_h_d = A_h_d*Ked + Aba_d - Ked*Aaa_d;
+F_h_d = Bb_d - Ked*Ba_d;
+C_h_d = [0 0; 0 0; 1 0; 0 1];
+D_h_d = [1 0; 0 1; Ked];
 
 % Ke=place(A22',A12',[-200 -200])';
 % 
