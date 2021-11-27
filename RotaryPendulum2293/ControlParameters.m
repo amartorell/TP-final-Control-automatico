@@ -160,12 +160,23 @@ Calpha2 = -((s+0.2)^2/(1+s/42));
 
 Calpha = minreal(Calpha1*Calpha2,0.01);
 Cprim = Calpha;
-
-PK=minreal(Calpha*Gb,0.01);
+Kprim=1/db2mag(0);
+PK=minreal(Calpha*Gb*Kprim,0.01);
 figure()
 margin(PK)
 figure()
 nyqlog(PK)
 eig(1/(1-PK))
+
+
+% Discretizacion del Loop Shaping
+
+Ts = 1e-3;
+CsecD = c2d(Csec,Ts,'zoh');
+CprimD = c2d(Cprim,Ts,'zoh');
+
+
+
+
 %figure();
 %margin(Gb*Calpha)
