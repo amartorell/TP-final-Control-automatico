@@ -175,6 +175,35 @@ Ts = 1e-3;
 CsecD = c2d(Csec,Ts,'zoh');
 CprimD = c2d(Cprim,Ts,'zoh');
 
+%% Implementacion de Loop Shaping en microcontrolador
+% controlador primario
+CprimNum = cell2mat(Cprim.Numerator);
+CprimDem = cell2mat(Cprim.Denominator);
+
+[Acp,Bcp,Ccp,Dcp] = tf2ss(CprimNum,CprimDem);
+[num,dem]= ss2tf(Acp,Bcp,Ccp,Dcp);
+test = minreal(zpk(tf(num,dem)),0.01);
+primss = ss(Acp,Bcp,Ccp,Dcp);
+primssd = c2d(primss,Ts,'zoh');
+uAcp = primssd.A;
+uBcp = primssd.B;
+uCcp = primssd.C;
+uDcp = primssd.D;
+
+% controlador secundario
+CsecNum = cell2mat(Csec.Numerator);
+CsecDem = cell2mat(Csec.Denominator);
+
+[Acs,Bcs,Ccs,Dcs] = tf2ss(CsecNum,CsecDem);
+[num,dem]= ss2tf(Acs,Bcs,Ccs,Dcs);
+test = minreal(zpk(tf(num,dem)),0.01);
+primss = ss(Acs,Bcs,Ccs,Dcs);
+primssd = c2d(primss,Ts,'zoh');
+uAcs = primssd.A;
+uBcs = primssd.B;
+uCcs = primssd.C;
+uDcs = primssd.D;
+
 
 
 

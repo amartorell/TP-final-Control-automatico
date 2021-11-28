@@ -160,12 +160,52 @@ Calpha2 = -((s+0.2)^2/(1+s/42));
 
 Calpha = minreal(Calpha1*Calpha2,0.01);
 Cprim = Calpha;
-Kprim=
-PK=minreal(Calpha*Gb,0.01);
+Kprim=1/db2mag(0);
+PK=minreal(Calpha*Gb*Kprim,0.01);
 figure()
 margin(PK)
 figure()
 nyqlog(PK)
 eig(1/(1-PK))
+
+
+% Discretizacion del Loop Shaping
+
+Ts = 1e-3;
+CsecD = c2d(Csec,Ts,'zoh');
+CprimD = c2d(Cprim,Ts,'zoh');
+
+%% Implementacion de Loop Shaping en microcontrolador
+% controlador primario
+CprimNum = cell2mat(Cprim.Numerator);
+CprimDem = cell2mat(Cprim.Denominator);
+
+[Acp,Bcp,Ccp,Dcp] = tf2ss(CprimNum,CprimDem);
+[num,dem]= ss2tf(Acp,Bcp,Ccp,Dcp);
+test = minreal(zpk(tf(num,dem)),0.01);
+primss = ss(Acp,Bcp,Ccp,Dcp);
+primssd = c2d(primss,Ts,'zoh');
+uAcp = primssd.A;
+uBcp = primssd.B;
+uCcp = primssd.C;
+uDcp = primssd.D;
+
+% controlador secundario
+CsecNum = cell2mat(Csec.Numerator);
+CsecDem = cell2mat(Csec.Denominator);
+
+[Acp,Bcp,Ccp,Dcp] = tf2ss(CsecNum,CsecDem);
+[num,dem]= ss2tf(Acp,Bcp,Ccp,Dcp);
+test = minreal(zpk(tf(num,dem)),0.01);
+primss = ss(Acp,Bcp,Ccp,Dcp);
+primssd = c2d(primss,Ts,'zoh');
+uAcs = primssd.A;
+uBcs = primssd.B;
+uCcp = primssd.C;
+uDcp = primssd.D;
+
+
+
+
 %figure();
 %margin(Gb*Calpha)
