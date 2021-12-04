@@ -68,10 +68,8 @@ rank(obsv(A,C)); %chequeo observavilidad del sistema
 %% Control LQR y LQI
 sys=ss(A,B1,C,0); 
 Q=diag([1 7 1 7 0.05]); %para lqi
-%%Q2=diag([1 10 1 10]); esta es para lqr
 R=1;
 [K,S,E]=lqi(sys,Q,R);
-%%K1=lqr(sys,Q2,R);
 Kp=K(1:4);
 ki=K(5);
 
@@ -98,7 +96,6 @@ Aaa=Aw(1:2,1:2);
 Aab=Aw(1:2,3:4);
 Aba=Aw(3:4,1:2);
 Abb=Aw(3:4,3:4);
-
 Ba=Bw(1:2);
 Bb=Bw(3:4);
 
