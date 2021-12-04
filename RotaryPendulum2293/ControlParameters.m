@@ -126,7 +126,6 @@ s = tf('s');
 [num,dem]= ss2tf(A,B1,[0 1 0 0],0);
 P1 = minreal(zpk(tf(num,dem)),0.01);
 Cbeta = ((s+9.45)/(1+(s/42)));%*ksys;
-tuvi =((s+9.45)/(1+(s/62)))*P1;
 ksys = 1/db2mag(-12.3);
 Lsec = P1*Cbeta*ksys;
 figure();
@@ -182,7 +181,6 @@ CprimDem = cell2mat(Cprim.Denominator);
 
 [Acp,Bcp,Ccp,Dcp] = tf2ss(CprimNum,CprimDem);
 [num,dem]= ss2tf(Acp,Bcp,Ccp,Dcp);
-test = minreal(zpk(tf(num,dem)),0.01);
 primss = ss(Acp,Bcp,Ccp,Dcp);
 primssd = c2d(primss,Ts,'zoh');
 uAcp = primssd.A;
@@ -196,7 +194,6 @@ CsecDem = cell2mat(Csec.Denominator);
 
 [Acs,Bcs,Ccs,Dcs] = tf2ss(CsecNum,CsecDem);
 [num,dem]= ss2tf(Acs,Bcs,Ccs,Dcs);
-test = minreal(zpk(tf(num,dem)),0.01);
 primss = ss(Acs,Bcs,Ccs,Dcs);
 primssd = c2d(primss,Ts,'zoh');
 uAcs = primssd.A;

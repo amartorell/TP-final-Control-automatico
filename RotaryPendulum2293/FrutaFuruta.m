@@ -171,3 +171,89 @@ uAinteg=integ_d.A;
 uBinteg=integ_d.B;
 uCinteg=integ_d.C;
 uDinteg=integ_d.D;
+
+
+
+
+%% Loop shaping
+
+%primer controlador para el sistema cascada
+s = tf('s');
+[num,dem]= ss2tf(A,B1,[0 1 0 0],0);
+P1 = minreal(zpk(tf(num,dem)),0.01);
+Cbeta = ((s+9.45)/(1+(s/42)));%*ksys;
+ksys = 1/db2mag(-12.3);
+Lsec = P1*Cbeta*ksys;
+figure();
+margin(P1*Cbeta*ksys) %cheque MP y PH del sistema a lazo abierto
+figure()
+nyqlog(P1*Cbeta*ksys)
+
+%%  se realiza la interconexion del sistema realimentando solo beta
+Csec = Cbeta*ksys;
+Cbeta = - minreal(Cbeta*ksys,0.01);
+Cbeta = ss(Cbeta);
+
+Cbeta.u = 'beta';
+Cbeta.y = 'ut';
+Gss= ss(A,B1,[1 0 0 0; 0 1 0 0],[0;0]);
+Gss.u = 'u';
+Gss.y = 'y';
+Sum = sumblk('u = ut + up');
+Sys = ss([],[],[],[1 0]);
+Sys.u = 'y';
+Sys.y = 'alpha';
+Sys2 = ss([],[],[],[0 1]);
+Sys2.u = 'y';
+Sys2.y = 'beta';
+
+Gb = connect(Gss,Cbeta,Sum,Sys,Sys2,'up','alpha');
+Gb = zpk(Gb);
+
+Calpha1 = ((s^2 + 52.59*s + 1239)*(s+9.449)/(6.925*(s+62)*(s+8.667)*(s+8.644)))/s;
+Calpha2 = -((s+0.2)^2/(1+s/42));
+
+Calpha = minreal(Calpha1*Calpha2,0.01);
+Cprim = Calpha;
+Kprim=1/db2mag(0);
+PK=minreal(Calpha*Gb*Kprim,0.01);
+figure()
+margin(PK)
+figure()
+nyqlog(PK)
+eig(1/(1-PK))
+
+close all;
+% Discretizacion del Loop Shaping
+
+Ts = 1e-3;
+CsecD = c2d(Csec,Ts,'zoh');
+CprimD = c2d(Cprim,Ts,'zoh');
+
+%% Implementacion de Loop Shaping en microcontrolador
+% controlador primario
+CprimNum = cell2mat(Cprim.Numerator);
+CprimDem = cell2mat(Cprim.Denominator);
+
+[Acp,Bcp,Ccp,Dcp] = tf2ss(CprimNum,CprimDem);
+[num,dem]= ss2tf(Acp,Bcp,Ccp,Dcp);
+primss = ss(Acp,Bcp,Ccp,Dcp);
+primssd = c2d(primss,Ts,'zoh');
+uAcp = primssd.A;
+uBcp = primssd.B;
+uCcp = primssd.C;
+uDcp = primssd.D;
+
+% controlador secundario
+CsecNum = cell2mat(Csec.Numerator);
+CsecDem = cell2mat(Csec.Denominator);
+
+[Acs,Bcs,Ccs,Dcs] = tf2ss(CsecNum,CsecDem);
+[num,dem]= ss2tf(Acs,Bcs,Ccs,Dcs);
+primss = ss(Acs,Bcs,Ccs,Dcs);
+primssd = c2d(primss,Ts,'zoh');
+uAcs = primssd.A;
+uBcs = primssd.B;
+uCcs = primssd.C;
+uDcs = primssd.D;
+
